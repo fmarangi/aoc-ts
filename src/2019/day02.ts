@@ -1,10 +1,11 @@
 import Puzzle from '../puzzle';
-import {parseProgram, runProgram} from './intcode';
+import {parseProgram, runOpcode} from './intcode';
 
 function getResult(intcode: number[], noun: number, verb: number): number {
   intcode[1] = noun;
   intcode[2] = verb;
-  return runProgram(intcode)[0];
+  runOpcode(intcode);
+  return intcode[0];
 }
 
 export const solution: Puzzle<number> = {
