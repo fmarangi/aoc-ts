@@ -6,7 +6,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "test": "jest --verbose"
+    "test": "jest"
   },
   "dependencies": {
     "typescript": "^4.1.2"
