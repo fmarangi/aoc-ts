@@ -2,7 +2,7 @@ import {allSlopes, countTrees, solution} from '../../src/2020/day03';
 import {readFileSync} from 'fs';
 import {join} from 'path';
 
-describe('December 3rd, 2020', () => {
+describe('Day 3: Toboggan Trajectory', () => {
   it('counts the trees on the slope', () => {
     expect(countTrees(
       "..##.......\n" +

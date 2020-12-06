@@ -2,7 +2,7 @@ import {seatId, solution} from '../../src/2020/day05';
 import {readFileSync} from 'fs';
 import {join} from 'path';
 
-describe('December 5th, 2020', () => {
+describe('Day 5: Binary Boarding', () => {
   it('calculates the seat ID', () => {
     expect(seatId('FBFBBFFRLR')).toBe(357);
     expect(seatId('BFFFBBFRRR')).toBe(567);

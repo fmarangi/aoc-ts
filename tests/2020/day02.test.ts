@@ -2,7 +2,7 @@ import {solution, validPassword, validTobogganPassword} from '../../src/2020/day
 import {readFileSync} from 'fs';
 import {join} from 'path';
 
-describe('December 2nd, 2020', () => {
+describe('Day 2: Password Philosophy', () => {
   it('checks password validity', () => {
     expect(validPassword('1-3 a', 'abcde')).toBe(true);
     expect(validPassword('1-3 b', 'cdefg')).toBe(false);

@@ -2,7 +2,7 @@ import {countValid, countValidValues, solution} from '../../src/2020/day04';
 import {readFileSync} from 'fs';
 import {join} from 'path';
 
-describe('December 4th, 2020', () => {
+describe('Day 4: Passport Processing', () => {
   it('finds the valid documents', () => {
     expect(countValid("ecl:gry pid:860033327 eyr:2020 hcl:#fffffd\n" +
       "byr:1937 iyr:2017 cid:147 hgt:183cm\n" +
