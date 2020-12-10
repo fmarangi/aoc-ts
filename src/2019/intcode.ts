@@ -1,4 +1,4 @@
-import {parseInput, prd, sum} from '../utils';
+import {parseInput} from '../utils';
 
 type IntcodeCallback = (input: number) => void;
 
@@ -11,77 +11,82 @@ const enum Opcode {
   JIF,
   LT,
   EQ,
+  REL_BASE,
   HALT = 99
 }
 
-const enum ParameterMode {POSITION, IMMEDIATE}
+const enum ParameterMode {POSITION, IMMEDIATE, RELATIVE}
 
 export const getModes = (opcode: number): number[] => [100, 1000, 10000].map(n => ((opcode / n) % 10) | 0);
 
 const getIncrement = (opcode: Opcode): number => {
-  const increments = {[Opcode.INPUT]: 2, [Opcode.OUTPUT]: 2, [Opcode.JIF]: 3, [Opcode.JIT]: 3};
+  const increments = {[Opcode.INPUT]: 2, [Opcode.OUTPUT]: 2, [Opcode.JIF]: 3, [Opcode.JIT]: 3, [Opcode.REL_BASE]: 2};
   return increments[opcode] || 4;
 };
 
 export const parseProgram = (input: string): number[] => parseInput(input, ',').map(Number);
 
-const getParam = (intcode: number[], param: number, mode: ParameterMode): number => {
-  return mode === ParameterMode.IMMEDIATE ? param : intcode[param];
-};
-
-export const runOpcode = (
-  intcode: number[],
-  input: number[] = [],
-  position: number = 0,
-  callback: IntcodeCallback = console.log
-): void => {
-  const opcode = intcode[position] % 100;
-  const [a, _, dest] = intcode.slice(position + 1, position + 4);
-  const [aVal, bVal] = getModes(intcode[position]).map((mode, i) => getParam(intcode, intcode[position + 1 + i], mode));
-  position += getIncrement(opcode);
-
-  switch (opcode) {
-    case Opcode.ADD:
-      intcode[dest] = sum(aVal, bVal);
-      break;
-
-    case Opcode.MUL:
-      intcode[dest] = prd(aVal, bVal);
-      break;
-
-    case Opcode.INPUT:
-      intcode[a] = input.shift();
-      break;
-
-    case Opcode.OUTPUT:
-      callback(aVal);
-      break;
-
-    case Opcode.JIT:
-      if (aVal) position = bVal;
-      break;
-
-    case Opcode.JIF:
-      if (!aVal) position = bVal;
-      break;
-
-    case Opcode.LT:
-      intcode[dest] = Number(aVal < bVal);
-      break;
-
-    case Opcode.EQ:
-      intcode[dest] = Number(aVal === bVal);
-      break;
-
-    case Opcode.HALT:
-      return;
+const getParam = (intcode: number[], param: number, mode: ParameterMode, relativeBase: number): number => {
+  switch (mode) {
+    case ParameterMode.POSITION:
+      return intcode[param];
+    case ParameterMode.IMMEDIATE:
+      return param;
+    case ParameterMode.RELATIVE:
+      return intcode[param] + relativeBase;
   }
-
-  runOpcode(intcode, input, position, callback);
 };
 
-export const runProgram = (intcode: number[], input: number[] = []): number[] => {
-  const output = [];
-  runOpcode([...intcode], input, 0, o => output.push(o));
-  return output;
-}
+export const runOpcode = (intcode: number[], input: number[] = []): number[] => {
+  const output: number[] = [], value = (x) => intcode[x] || 0;
+  let pos = 0, relativeBase = 0;
+
+  while (true) {
+    const opcode = intcode[pos] % 100;
+    const [a, b, c] = getModes(intcode[pos]).map((mode, i) => getParam(intcode, pos + i + 1, mode, relativeBase));
+    pos += getIncrement(opcode);
+
+    switch (opcode) {
+      case Opcode.ADD:
+        intcode[c] = value(a) + value(b);
+        break;
+
+      case Opcode.MUL:
+        intcode[c] = value(a) * value(b);
+        break;
+
+      case Opcode.INPUT:
+        intcode[a] = input.shift();
+        break;
+
+      case Opcode.OUTPUT:
+        output.push(value(a));
+        break;
+
+      case Opcode.JIT:
+        if (value(a)) pos = value(b);
+        break;
+
+      case Opcode.JIF:
+        if (!value(a)) pos = value(b);
+        break;
+
+      case Opcode.LT:
+        intcode[c] = value(a) < value(b) ? 1 : 0;
+        break;
+
+      case Opcode.EQ:
+        intcode[c] = value(a) === value(b) ? 1 : 0;
+        break;
+
+      case Opcode.REL_BASE:
+        relativeBase += value(a);
+        break;
+
+      case Opcode.HALT:
+        return output;
+    }
+  }
+};
+
+export const runProgram = (intcode: number[], input: number[] = []): number[] => runOpcode([...intcode], [...input]);

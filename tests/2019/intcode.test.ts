@@ -7,6 +7,7 @@ describe('Intcode', () => {
 
   it('calculates the parameter modes', () => {
     expect(getModes(1002)).toStrictEqual([0, 1, 0]);
+    expect(getModes(21202)).toStrictEqual([2, 1, 2]);
   });
 
   it('runs the program including new features', () => {
@@ -28,5 +29,11 @@ describe('Intcode', () => {
     expect(runProgram(program, [7]).pop()).toBe(999);
     expect(runProgram(program, [8]).pop()).toBe(1000);
     expect(runProgram(program, [9]).pop()).toBe(1001);
+
+    const quine = [109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99];
+    expect(runProgram(quine)).toStrictEqual(quine);
+
+    expect(runProgram([1102, 34915192, 34915192, 7, 4, 7, 99, 0])[0]).toBe(1219070632396864);
+    expect(runProgram([104, 1125899906842624, 99])[0]).toBe(1125899906842624);
   })
 });
