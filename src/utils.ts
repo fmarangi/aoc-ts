@@ -10,3 +10,10 @@ export const between = (x: any, from: number, to: number): boolean => Number(x) 
 
 export const union = <T>(a: Set<T>, b: Set<T>): Set<T> => new Set<T>(Array.from(a.values()).concat(Array.from(b.values())));
 export const intersection = <T>(a: Set<T>, b: Set<T>): Set<T> => new Set<T>(Array.from(a.values()).filter(v => b.has(v)));
+
+export const permutations = <T>(a: T[]): T[][] => {
+  return a.length ? a.reduce((r: T[][], v: T, i: number) => [
+    ...r,
+    ...permutations([...a.slice(0, i), ...a.slice(i + 1)]).map((x) => [v, ...x]),
+  ], []) : [[]];
+};
